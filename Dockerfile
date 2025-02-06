@@ -1,20 +1,22 @@
-# בחר את התמונה הבסיסית של Node.js
-FROM node:18
+# Stage 1: Build the frontend app
+FROM node:20 AS build
 
-# הגדר את תיקיית העבודה
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# העתק את קבצי ה-package.json וה-package-lock.json
-COPY package*.json ./
-
-# התקן את התלויות
+COPY ay-client/package*.json ./
 RUN npm install
 
-# העתק את שאר הקבצים
-COPY . .
+COPY ay-client/ ./
+RUN npm run build
 
-# הפעל את השרת של Vite בפקודת dev
-EXPOSE 3000
+# Stage 2: Serve the app using Nginx
+FROM nginx:alpine
 
-# הפעל את השרת של Vite במצב פיתוח
-CMD ["npm", "run", "dev"]
+# Copy the build files from the build stage
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose the port Nginx listens on
+EXPOSE 80
+
+# Run Nginx
+CMD ["nginx", "-g", "daemon off;"]

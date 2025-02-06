@@ -1,42 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+import { useEffect, useState } from 'react';
 
-const socket = io("http://localhost:4000");
-
-const App: React.FC = () => {
-  const [message, setMessage] = useState<string>("");
-
+function App() {
+  const [message, setMessage] = useState('');
+  
   useEffect(() => {
-    // חיבור לשרת
-    socket.on("connect", () => {
-      console.log("Connected to server");
-    });
+    const intervalId = setInterval(() => {
+      fetch('http://a953037e3c2974855a42090a9ec7c663-428432837.us-east-1.elb.amazonaws.com:4000/api/message') // שים לב לנתיב המעודכן
+        .then((res) => res.json())
+        .then((data) => setMessage(data.message))
+        .catch((err) => console.error(err));
+    }, 5000); // שליחה כל 5 שניות
 
-    // שמיעה להודעה מהשרת
-    socket.on("message", (data: string) => {
-      console.log("Received message:", data); // הוספנו כאן console.log כדי לוודא שההודעה התקבלה
-      setMessage(data); // עדכון ה-state עם ההודעה
-    });
-
-    // ניתוק מהשרת
-    socket.on("disconnect", () => {
-      console.log("Disconnected from server");
-    });
-
-    // ניקוי כאשר רכיב נפרד
-    return () => {
-      socket.off("message");
-      socket.off("connect");
-      socket.off("disconnect");
-    };
+    return () => clearInterval(intervalId); // ניקוי החיבור כשמפסיקים את הקומפוננטה
   }, []);
 
   return (
     <div>
-      <h1>Socket.io React Client</h1>
-      <p>{message ? message : "Waiting for message..."}</p>
+      <h1>Full Stack App</h1>
+      <p>{message}</p>
+     
     </div>
   );
-};
+}
 
 export default App;

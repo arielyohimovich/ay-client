@@ -4,8 +4,11 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: 'dist', // ודא שהתוצרים יישמרו בתיקיית dist
+  },
   server: {
-    port: 3000,  // הגדרת פורט 3000
-    host: true,   // זמין ברשת (אם צריך)
+    port: 3000,  
+    host: '0.0.0.0',  // זמין לכל כתובת IP
   },
 })
